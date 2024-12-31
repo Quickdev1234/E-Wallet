@@ -53,7 +53,6 @@ const Registration = () => {
       return _axios.post("/user/auth/register", values);
     },
     onSuccess(data: any) {
-      console.log(data);
       toast.success(data?.data?.message);
       form.reset();
       navigate("/auth-login");

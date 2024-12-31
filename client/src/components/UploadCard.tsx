@@ -86,7 +86,6 @@ const UploadCardForm = () => {
       return _axios.post("/user/card/create", values);
     },
     onSuccess(data: any) {
-      console.log(data);
       toast.success(data?.data?.message);
       form.reset();
       navigate("/");
@@ -104,7 +103,6 @@ const UploadCardForm = () => {
       userId: userId,
     };
 
-    console.log("Formatted Form Data:", formattedData);
     mutate(formattedData);
   };
 

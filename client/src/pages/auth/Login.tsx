@@ -37,7 +37,6 @@ const Loginpage = () => {
       return _axios.post("/user/auth/login", values);
     },
     onSuccess(data: any) {
-      console.log(data);
       toast.success(data?.data?.message);
       localStorage.setItem("E_UserAuthToken", data?.data?.token);
       localStorage.setItem("E_UserName", data?.data?.userName);
