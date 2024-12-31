@@ -52,11 +52,11 @@ const Loginpage = () => {
     mutate(values);
   }
 
-  // useEffect(() => {
-  //   if (localStorage.getItem("E_UserAuthToken")) {
-  //     navigate("/");
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (localStorage.getItem("E_UserAuthToken")) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div className='h-screen bg-gradient-to-r from-teal-400 via-blue-500 to-purple-600 flex items-center justify-center font-grotesk'>
