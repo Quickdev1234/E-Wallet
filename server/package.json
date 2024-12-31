@@ -3,10 +3,16 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/main.ts"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@chneau/elysia-logger": "^1.0.10",
+    "@elysiajs/cors": "^1.2.0",
+    "@elysiajs/swagger": "^1.2.0",
+    "@types/jsonwebtoken": "^9.0.7",
+    "elysia": "latest",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.2"
   },
   "devDependencies": {
     "bun-types": "latest"
