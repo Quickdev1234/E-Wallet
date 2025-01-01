@@ -55,7 +55,7 @@ const Registration = () => {
     onSuccess(data: any) {
       toast.success(data?.data?.message);
       form.reset();
-      navigate("/auth-login");
+      navigate("/");
     },
     onError(error: any) {
       toast.error(error?.response?.data?.message);
@@ -197,7 +197,7 @@ const Registration = () => {
                 Already have an account?{" "}
                 <span
                   className='text-blue-500 hover:underline cursor-pointer'
-                  onClick={() => navigate("/auth-login")}>
+                  onClick={() => navigate("/")}>
                   Login
                 </span>
               </p>
