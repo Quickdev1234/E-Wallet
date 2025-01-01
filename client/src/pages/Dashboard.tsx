@@ -83,7 +83,7 @@ const Dashboard = () => {
               onClick={() => {
                 setModelOpen(true);
               }}
-              className={`flex cursor-pointer items-center justify-start rounded-md p-2`}>
+              className={`flex cursor-pointer items-center justify-start rounded-md p-2 -mt-3`}>
               <Icon
                 icon={"solar:logout-2-bold"}
                 className='mr-2 h-6 w-6 text-red-600'
