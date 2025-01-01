@@ -20,6 +20,13 @@ import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!localStorage.getItem("E_UserAuthToken")) {
+      navigate("/auth-login");
+    }
+  }, []);
+  
   const userName = localStorage.getItem("E_UserName");
   const userId = localStorage.getItem("E_UserId");
   const [modelOpen, setModelOpen] = useState(false);
