@@ -240,7 +240,7 @@ const Dashboard = () => {
               variant='default'
               onClick={() => {
                 localStorage.clear();
-                navigate("/auth-login");
+                navigate("/");
                 toast.success("Logged out successfully");
               }}>
               Yes
