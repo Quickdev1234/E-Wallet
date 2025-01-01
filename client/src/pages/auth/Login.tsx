@@ -41,7 +41,7 @@ const Loginpage = () => {
       localStorage.setItem("E_UserAuthToken", data?.data?.token);
       localStorage.setItem("E_UserName", data?.data?.userName);
       localStorage.setItem("E_UserId", data?.data?.id);
-      navigate("/");
+      navigate("/dashboard");
     },
     onError(error: any) {
       toast.error(error?.response?.data?.message);
