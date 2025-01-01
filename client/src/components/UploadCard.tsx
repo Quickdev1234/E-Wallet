@@ -88,7 +88,7 @@ const UploadCardForm = () => {
     onSuccess(data: any) {
       toast.success(data?.data?.message);
       form.reset();
-      navigate("/");
+      navigate("/dashboard");
     },
     onError(error: any) {
       toast.error(error?.response?.data?.message);
