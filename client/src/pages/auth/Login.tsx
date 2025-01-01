@@ -54,7 +54,7 @@ const Loginpage = () => {
 
   useEffect(() => {
     if (localStorage.getItem("E_UserAuthToken")) {
-      navigate("/");
+      navigate("/dashboard");
     }
   }, []);
 
