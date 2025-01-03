@@ -26,7 +26,7 @@ const Dashboard = () => {
       navigate("/auth-login");
     }
   }, []);
-  
+
   const userName = localStorage.getItem("E_UserName");
   const userId = localStorage.getItem("E_UserId");
   const [modelOpen, setModelOpen] = useState(false);
@@ -102,7 +102,7 @@ const Dashboard = () => {
             Uploaded Cards
           </h2>
           <button
-            onClick={() => navigate("/uplaod-card")}
+            onClick={() => navigate("/upload-card")}
             className='px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400'>
             Upload Card Details
           </button>

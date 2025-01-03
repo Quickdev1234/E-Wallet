@@ -12,7 +12,7 @@ function App() {
           <Route path='/' element={<Loginpage />} />
           <Route path='/auth-register' element={<Registration />} />
           <Route path='/dashboard' element={<Dashboard />} />
-          <Route path='/uplaod-card' element={<UploadCard />} />
+          <Route path='/upload-card' element={<UploadCard />} />
         </Routes>
       </BrowserRouter>
     </>
