@@ -24,7 +24,7 @@ A secure and user-friendly web application to manage your debit and credit card 
 - **Frontend**: React
 - **Backend**: Bun + Elysia
 - **Database**: MongoDB
-- **Hosting**: [Specify hosting platform, e.g., AWS, Vercel]
+- **Hosting**: https://e-wallet-1-client.onrender.com/
 
 ---
 
