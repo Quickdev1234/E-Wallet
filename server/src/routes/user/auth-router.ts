@@ -144,6 +144,113 @@ const UserAuthRouter = new Elysia({
         description: "User Login",
       },
     }
+  )
+  .post(
+    "/forget-password",
+    async ({ set, body }) => {
+      try {
+        const { email } = body;
+
+        const isUserExist = await UserModel.findOne({
+          email,
+        });
+
+        if (!isUserExist) {
+          set.status = 400;
+          return {
+            message: "User not found",
+          };
+        }
+
+        const token = jwt.sign({
+          id: isUserExist._id,
+          email: isUserExist.email,
+        });
+
+        set.status = 200;
+
+        return {
+          message: "user found",
+          success: true,
+          token,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      body: t.Object({
+        email: t.String({
+          examples: ["jhon@gmail.com"],
+        }),
+      }),
+      detail: {
+        summary: "Forget Password",
+        description: "Forget Password",
+      },
+    }
+  )
+  .post(
+    "/reset-password",
+    async ({ set, body }) => {
+      try {
+        const { password, token } = body;
+
+        const decoded: any = jwt.verify(token);
+
+        const { id } = decoded;
+
+        if (!decoded) {
+          set.status = 400;
+          return {
+            message: "Invalid token try again",
+          };
+        }
+
+        const isUserExist = await UserModel.findById(id);
+
+        if (!isUserExist) {
+          set.status = 400;
+          return {
+            message: "User not found",
+          };
+        }
+
+        isUserExist.password = password;
+        await isUserExist.save();
+
+        set.status = 200;
+
+        return {
+          message: "Password reset successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      body: t.Object({
+        password: t.String({
+          examples: ["12345678"],
+        }),
+        token: t.String({
+          examples: ["12345678"],
+        }),
+      }),
+      detail: {
+        summary: "Reset Password",
+        description: "Reset Password",
+      },
+    }
   );
 
 export { UserAuthRouter };

@@ -13,7 +13,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        grotesk: ['"Host Grotesk"', 'sans-serif']
+        grotesk: ['"Host Grotesk"', 'sans-serif'],
+        roboto: ['"Roboto"', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

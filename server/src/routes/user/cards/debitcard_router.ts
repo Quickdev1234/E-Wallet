@@ -1,13 +1,14 @@
 import Elysia, { t } from "elysia";
-import { UserModel } from "../../models/user/user-model";
-import { CardModel } from "../../models/card/card-model";
+import { UserModel } from "../../../models/user/user-model";
+import { DebitCardModel } from "../../../models/cards/debitcard-model";
 
-const CardRouter = new Elysia({
-  prefix: "/card",
+const DebitCardRouter = new Elysia({
+  prefix: "/debitcard",
   detail: {
-    tags: ["Card Management"],
+    tags: ["Debit Card Management"],
   },
 })
+
   .post(
     "/create",
     async ({ set, body }) => {
@@ -17,7 +18,6 @@ const CardRouter = new Elysia({
           cardNumber,
           cardHolderName,
           expiryDate,
-          cardType,
           ccv,
           bankName,
         } = body;
@@ -31,12 +31,11 @@ const CardRouter = new Elysia({
           };
         }
 
-        const card = new CardModel({
+        const card = new DebitCardModel({
           userId,
           cardNumber,
           cardHolderName,
           expiryDate,
-          cardType,
           ccv,
           bankName,
         });
@@ -71,9 +70,7 @@ const CardRouter = new Elysia({
         expiryDate: t.String({
           examples: ["12/25"],
         }),
-        cardType: t.String({
-          examples: ["debit"],
-        }),
+
         ccv: t.String({
           examples: ["123"],
         }),
@@ -82,8 +79,8 @@ const CardRouter = new Elysia({
         }),
       }),
       detail: {
-        summary: "Create Card",
-        description: "Create a new card",
+        summary: "Create Debit Card",
+        description: "Create a new Debit card",
       },
     }
   )
@@ -102,19 +99,18 @@ const CardRouter = new Elysia({
           };
         }
 
-        // Modified query to include sensitive fields
-        const cards = await CardModel.find({ userId })
-          .select("+cardNumber +ccv") // Explicitly include sensitive fields
+        const cards = await DebitCardModel.find({ userId })
+          .select("+cardNumber +ccv")
           .skip((Number(page) - 1) * Number(limit))
           .limit(Number(limit))
           .sort({ createdAt: -1 })
           .lean();
 
-        const count = await CardModel.countDocuments({ userId });
+        const count = await DebitCardModel.countDocuments({ userId });
 
         const decryptedCards = cards.map((card: any) => {
           try {
-            const cardDoc: any = new CardModel(card);
+            const cardDoc: any = new DebitCardModel(card);
             return {
               ...cardDoc.decryptCardDetails(),
               _id: card._id,
@@ -160,66 +156,11 @@ const CardRouter = new Elysia({
         }),
       }),
       detail: {
-        summary: "Get All Cards with Sensitive Data",
+        summary: "Get All Debit Cards with Sensitive Data",
         description:
-          "Get all cards of a user including decrypted sensitive information",
+          "Get all Debit cards of a user including decrypted sensitive information",
       },
     }
   );
-// .get(
-//   "/allcards",
-//   async ({ query, set }) => {
-//     try {
-//       const { page, limit, userId } = query;
 
-//       const isUserExist = await UserModel.findById(userId);
-
-//       if (!isUserExist) {
-//         set.status = 400;
-//         return {
-//           message: "User Not Found",
-//         };
-//       }
-
-//       const Cards = await CardModel.find({ userId })
-//         .skip((Number(page) - 1) * Number(limit))
-//         .limit(Number(limit))
-//         .sort({ createdAt: -1 })
-//         .lean();
-
-//       const count = await CardModel.countDocuments({ userId });
-
-//       set.status = 200;
-
-//       return {
-//         message: "cards fetched",
-//         Cards,
-//         count,
-//       };
-//     } catch (error: any) {
-//       console.log(error);
-//       set.status = 500;
-//       return {
-//         message: error,
-//       };
-//     }
-//   },
-//   {
-//     query: t.Object({
-//       page: t.String({
-//         examples: ["1"],
-//       }),
-//       limit: t.String({
-//         examples: ["10"],
-//       }),
-//       userId: t.String({
-//         examples: ["64a3d84c2d3c1b2a08930b32"],
-//       }),
-//     }),
-//     detail: {
-//       summary: "Get All Cards",
-//       description: "Get all cards of a user",
-//     },
-//   }
-// );
-export { CardRouter };
+export { DebitCardRouter };

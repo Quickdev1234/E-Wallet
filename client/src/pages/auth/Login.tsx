@@ -127,7 +127,7 @@ const Loginpage = () => {
                 disabled={isPending}
                 type='submit'
                 className='w-full py-2.5 px-4 text-lg font-semibold rounded-md text-white bg-[#4f46e5] hover:bg-[#4338ca] focus:outline-none focus:ring-2 focus:ring-[#4338ca] focus:ring-opacity-50'>
-                Log in
+                {isPending ? "Please wait..." : "Login"}
               </button>
             </div>
             <p className='text-center mt-4 text-gray-600'>
@@ -136,6 +136,13 @@ const Loginpage = () => {
                 className='text-blue-500 hover:underline cursor-pointer'
                 onClick={() => navigate("/auth-register")}>
                 Create a new account
+              </span>
+            </p>
+            <p className='text-center mt-2 text-gray-600'>
+              <span
+                className='text-blue-500 hover:underline cursor-pointer'
+                onClick={() => navigate("/forget-password")}>
+                Forgot Password?
               </span>
             </p>
           </form>

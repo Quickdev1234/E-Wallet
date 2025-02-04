@@ -1,22 +1,11 @@
-import { LoadingIndicator } from "@/components/Loading";
-import { _axios } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { Icon } from "@iconify/react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import debitcard from "../../public/debitcard.jpeg";
+import creditcard from "../../public/creditcard.jpeg";
+import pancard from "../../public/pan.jpeg";
+import aadhaar from "../../public/addhar.jpeg";
+import licence from "../../public/drivinglicence.jpeg";
+import voterId from "../../public/voterid.jpeg";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,233 +17,54 @@ const Dashboard = () => {
   }, []);
 
   const userName = localStorage.getItem("E_UserName");
-  const userId = localStorage.getItem("E_UserId");
-  const [modelOpen, setModelOpen] = useState(false);
-  const [pagination, setPagination] = useState<any>({
-    page: 1,
-    limit: 10,
-    total: 0,
-  });
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["Cards list", pagination.page, pagination.limit],
-    queryFn: async () => {
-      return await _axios.get(
-        `/user/card/allcards?userId=${userId}&page=${pagination.page}&limit=${pagination.limit}`
-      );
-    },
-  });
 
-  useEffect(() => {
-    if (data) {
-      setPagination((prev: any) => ({
-        ...prev,
-        total: data?.data?.count,
-      }));
-    }
-  }, [data]);
-
-  const handlePageChange = (page: number) => {
-    setPagination((prev: any) => ({
-      ...prev,
-      page,
-    }));
-  };
-  const totalPages = useMemo(
-    () => Math.ceil(pagination.total / pagination.limit),
-    [pagination.total, pagination.limit]
-  );
-
-  if (isError)
-    return (
-      <div className='flex justify-center items-center h-[75vh]'>
-        <div className='text-xl text-red-600'>Some thing went wrong</div>
-      </div>
-    );
+  const cards = [
+    { image: debitcard, title: "Debit Card", path: "/debit-list" },
+    { image: creditcard, title: "Credit Card", path: "/credit-list" },
+    { image: pancard, title: "Pan Card", path: "/pan-list" },
+    { image: aadhaar, title: "Aadhaar Card", path: "/aadhaar-list" },
+    { image: licence, title: "Driving Licence", path: "/drivinglicense-list" },
+    { image: voterId, title: "Voter ID", path: "/voterid-list" },
+  ];
 
   return (
-    <main className='p-6 h-full font-grotesk bg-gradient-to-b from-gray-100 to-gray-200 min-h-[100vh]'>
-      <div className='flex items-center   justify-between'>
-        <div className='flex  gap-4 items-start w-full justify-between'>
-          <h1 className='text-2xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600'>
-            Hello {userName} !
+    <main className='p-6 sm:p-8 font-roboto min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-5rem)] bg-gradient-to-b from-blue-50 to-gray-100'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='mb-8 text-center'>
+          <h1 className='text-3xl sm:text-4xl font-extrabold text-gray-800 animate-fade-in'>
+            Welcome back,{" "}
+            <span className='text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600'>
+              {userName}
+            </span>
+            !
           </h1>
-          <div>
-            <button
-              onClick={() => {
-                setModelOpen(true);
-              }}
-              className={`flex cursor-pointer items-center justify-start rounded-md p-2 -mt-3`}>
-              <Icon
-                icon={"solar:logout-2-bold"}
-                className='mr-2 h-6 w-6 text-red-600'
-              />
-              <p className='text-md flex font-inter  items-center gap-3 rounded-lg px-3 py-4 font-semibold transition-all'>
-                Logout
-              </p>
-            </button>
-          </div>
+          <p className='text-sm sm:text-base text-gray-600 mt-2 animate-slide-up'>
+            Securely manage and access all your essential details in one place.
+          </p>
         </div>
-      </div>
 
-      <div className='mt-8'>
-        <div className='flex justify-between items-center'>
-          <h2 className='text-lg font-semibold text-gray-800'>
-            Uploaded Cards
-          </h2>
-          <button
-            onClick={() => navigate("/upload-card")}
-            className='px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-purple-600 rounded-md hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-400'>
-            Upload Card Details
-          </button>
-        </div>
-        {isLoading && (
-          <div className='flex justify-center items-center h-[70vh]'>
-            <LoadingIndicator />
-          </div>
-        )}
-
-        {data?.data?.Cards?.length === 0 && (
-          <div className='flex justify-center items-center h-[70vh]'>
-            <p className='text-gray-600'>No cards uploaded yet.</p>
-          </div>
-        )}
-
-        <div className='mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {data?.data?.Cards?.map((card: any) => (
+        <div className='grid grid-cols-1 pt-4  sm:grid-cols-2 md:grid-cols-3 gap-6'>
+          {cards.map((card: any, index: any) => (
             <div
-              key={card._id}
-              className='p-4 bg-white shadow-lg rounded-lg border border-gray-200'>
-              <h3 className='text-lg font-semibold text-gray-700'>
-                {card.cardHolderName}
-              </h3>
-              <p className='text-sm text-gray-600 mt-1'>
-                <span className='font-medium'>Card Number:</span>{" "}
-                {card.cardNumber}
-              </p>
-              <p className='text-sm text-gray-600 mt-1'>
-                <span className='font-medium'>Expiry Date:</span>{" "}
-                {card.expiryDate}
-              </p>
-              <p className='text-sm text-gray-600 mt-1'>
-                <span className='font-medium'>Card Type:</span> {card.cardType}
-              </p>
-              <p className='text-sm text-gray-600 mt-1'>
-                <span className='font-medium'>CCV:</span> {card.ccv}
-              </p>
-              <p className='text-sm text-gray-600 mt-1'>
-                <span className='font-medium'>Bank Name:</span> {card.bankName}
-              </p>
+              key={index}
+              onClick={() => navigate(card.path)}
+              className='bg-white p-4 cursor-pointer rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:scale-105 hover:-translate-y-1 group'>
+              <div className='relative aspect-w-4 aspect-h-3 overflow-hidden rounded-lg'>
+                <img
+                  src={card.image}
+                  alt={card.title}
+                  className='w-full h-full object-cover transition-transform group-hover:scale-110 duration-500'
+                />
+                <div className='absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500'>
+                  <h2 className='text-lg sm:text-xl font-bold text-white bg-black/50 px-3 py-1 rounded-md animate-fade-in'>
+                    {card.title}
+                  </h2>
+                </div>
+              </div>
             </div>
           ))}
         </div>
-        {data?.data?.Cards?.length > 0 && (
-          <div className='flex justify-between'>
-            <Pagination className='mt-6 justify-center'>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href='#'
-                    onClick={() => {
-                      if (pagination.page === 1) return;
-                      handlePageChange(pagination.page - 1);
-                    }}
-                    className={`${
-                      pagination.page === 1
-                        ? "cursor-not-allowed opacity-50"
-                        : "cursor-pointer opacity-100"
-                    }`}
-                  />
-                </PaginationItem>
-                {pagination.page > 3 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href='#'
-                      onClick={() => handlePageChange(1)}>
-                      1
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
-                {pagination.page > 4 && (
-                  <PaginationItem>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                )}
-                {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
-                  const pageNumber = pagination.page + i - 1;
-                  if (pageNumber > 0 && pageNumber <= totalPages) {
-                    return (
-                      <PaginationItem key={i}>
-                        <PaginationLink
-                          href='#'
-                          isActive={pageNumber === pagination.page}
-                          onClick={() => handlePageChange(pageNumber)}>
-                          {pageNumber}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  }
-                  return null;
-                })}
-                {pagination.page < totalPages - 3 && (
-                  <PaginationItem>
-                    <PaginationEllipsis />
-                  </PaginationItem>
-                )}
-                {pagination.page < totalPages - 2 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href='#'
-                      onClick={() => handlePageChange(totalPages)}>
-                      {totalPages}
-                    </PaginationLink>
-                  </PaginationItem>
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    href='#'
-                    onClick={() => {
-                      if (pagination.page === totalPages) return;
-                      handlePageChange(pagination.page + 1);
-                    }}
-                    className={`${
-                      pagination.page === totalPages
-                        ? "cursor-not-allowed opacity-50"
-                        : "cursor-pointer opacity-100"
-                    }`}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-          </div>
-        )}
       </div>
-      <Dialog modal open={modelOpen} onOpenChange={setModelOpen}>
-        <DialogContent
-          aria-describedby='logout-dialog-description'
-          className='font-inter text-center text-2xl flex flex-col items-center'>
-          <h1>Do you want to log out?</h1>
-
-          <div className='flex w-full font-inter gap-4 mt-4 items-center justify-center'>
-            <Button
-              className='w-[20%] bg-blue-500 border font-grotesk text-white'
-              variant='default'
-              onClick={() => {
-                localStorage.clear();
-                navigate("/");
-                toast.success("Logged out successfully");
-              }}>
-              Yes
-            </Button>
-
-            <Button
-              className='w-[20%] bg-gray-500'
-              variant='default'
-              onClick={() => setModelOpen(false)}>
-              No
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </main>
   );
 };

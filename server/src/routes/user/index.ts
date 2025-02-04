@@ -1,7 +1,7 @@
 import Elysia from "elysia";
 import { UserAuthRouter } from "./auth-router";
-import { CardRouter } from "./card-router";
 import { jwt } from "../../lib/jwt";
+import { CardRouter } from "./cards";
 
 const UserRouter = new Elysia({
   prefix: "/user",
