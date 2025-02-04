@@ -17,13 +17,6 @@ import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { formSchema } from "./voteridSchema";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 const UploadVoterId = () => {
