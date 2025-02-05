@@ -161,6 +161,124 @@ const DebitCardRouter = new Elysia({
           "Get all Debit cards of a user including decrypted sensitive information",
       },
     }
+  )
+  .put(
+    "/edit",
+    async ({ set, body, query }) => {
+      try {
+        const { cardId } = query;
+        const {
+          userId,
+          cardNumber,
+          expiryDate,
+          ccv,
+          cardHolderName,
+          bankName,
+        } = body;
+
+        const existingCard = await DebitCardModel.findOne({
+          _id: cardId,
+          userId,
+        });
+
+        if (!existingCard) {
+          set.status = 400;
+          return {
+            message: "Card Not Found",
+          };
+        }
+        existingCard.cardNumber = cardNumber;
+        existingCard.expiryDate = expiryDate;
+        existingCard.ccv = ccv;
+        existingCard.cardHolderName = cardHolderName;
+        existingCard.bankName = bankName;
+
+        await existingCard.save();
+
+        set.status = 200;
+
+        return {
+          message: "Card Updated Successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      detail: {
+        summary: "Edit Debit Card",
+        description: "Edit a Debit card of a user",
+      },
+      query: t.Object({
+        cardId: t.String({
+          examples: ["64a3d84c2d3c1b2a08930b32"],
+        }),
+      }),
+      body: t.Object({
+        userId: t.String({
+          examples: ["64a3d84c2d3c1b2a08930b32"],
+        }),
+        cardNumber: t.String({
+          examples: ["1234567890123456"],
+        }),
+        cardHolderName: t.String({
+          examples: ["John Doe"],
+        }),
+        expiryDate: t.String({
+          examples: ["12/25"],
+        }),
+
+        ccv: t.String({
+          examples: ["123"],
+        }),
+        bankName: t.String({
+          examples: ["Bank of America"],
+        }),
+      }),
+    }
+  )
+  .delete(
+    "/delete",
+    async ({ set, query }) => {
+      try {
+        const { cardId } = query;
+
+        const existingCard = await DebitCardModel.findOneAndDelete({
+          _id: cardId,
+        });
+
+        if (!existingCard) {
+          set.status = 400;
+          return {
+            message: "Card Not Found",
+          };
+        }
+
+        set.status = 200;
+
+        return {
+          message: "Card Deleted Successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      detail: {
+        summary: "Delete Debit Card",
+        description: "Delete a Debit card of a user",
+      },
+    }
   );
 
 export { DebitCardRouter };

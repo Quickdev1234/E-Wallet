@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { _axios } from "@/lib/axios";
 import { toast } from "sonner";
@@ -18,9 +18,12 @@ import { useMutation } from "@tanstack/react-query";
 import { formSchema } from "./aadhaarSchema";
 
 import { Textarea } from "@/components/ui/textarea";
+import { useAadhaarCardStore } from "@/store/AadhaarStore";
+import { useEffect } from "react";
 
 const UploadAadhaarCard = () => {
   const navigate = useNavigate();
+  const { id: cardId } = useParams();
   const userId = localStorage.getItem("E_UserId");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -34,6 +37,19 @@ const UploadAadhaarCard = () => {
     },
   });
 
+  const currentAadhaarCard = useAadhaarCardStore.getState().currentAadhaarCard;
+
+  useEffect(() => {
+    if (cardId && currentAadhaarCard) {
+      form.setValue("aadhaarNumber", currentAadhaarCard?.aadhaarNumber);
+      form.setValue("fullName", currentAadhaarCard?.fullName);
+      form.setValue("dateOfBirth", currentAadhaarCard?.dateOfBirth);
+      form.setValue("mobileNumber", currentAadhaarCard?.mobileNumber);
+      form.setValue("address", currentAadhaarCard?.address);
+      form.setValue("fatherName", currentAadhaarCard?.fatherName);
+    }
+  }, [cardId, form]);
+
   const formatAadhaarNumber = (value: string) => {
     return value
       .replace(/\D/g, "")
@@ -44,10 +60,15 @@ const UploadAadhaarCard = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (values: any) => {
-      return _axios.post("/user/card/aadhaarcard/create", {
-        ...values,
-        userId: userId,
-      });
+      return cardId
+        ? _axios.put(`/user/card/aadhaarcard/edit?cardId=${cardId}`, {
+            ...values,
+            userId: userId,
+          })
+        : _axios.post("/user/card/aadhaarcard/create", {
+            ...values,
+            userId: userId,
+          });
     },
     onSuccess(data: any) {
       toast.success(data?.data?.message);
@@ -76,7 +97,7 @@ const UploadAadhaarCard = () => {
           icon={"famicons:arrow-back-outline"}
           className='text-2xl md:text-3xl cursor-pointer  font-semibold'
         />
-        Upload Aadhaar Card
+        {cardId ? "Edit Aadhaar Card" : "Upload Aadhaar Card"}
       </h2>
       <div className='min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-6rem)] flex items-center justify-center  font-roboto'>
         <div className='w-full max-w-md bg-white rounded-lg shadow-lg p-6 '>

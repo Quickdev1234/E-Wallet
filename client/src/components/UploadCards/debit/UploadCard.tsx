@@ -10,16 +10,19 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { _axios } from "@/lib/axios";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { formSchema } from "./debitSchema";
 import { formatCardNumber, formatExpiryDate } from "@/lib/formaters";
+import { useDebitCardStore } from "@/store/DebitStore";
+import { useEffect } from "react";
 
 const UploadDebitCard = () => {
   const navigate = useNavigate();
+  const { id: cardId } = useParams();
   const userId = localStorage.getItem("E_UserId");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -32,9 +35,23 @@ const UploadDebitCard = () => {
     },
   });
 
+  const currentDebitCard = useDebitCardStore.getState().currentDebitCard;
+
+  useEffect(() => {
+    if (cardId && currentDebitCard) {
+      form.setValue("cardNumber", currentDebitCard?.cardNumber);
+      form.setValue("cardHolderName", currentDebitCard?.cardHolderName);
+      form.setValue("expiryDate", currentDebitCard?.expiryDate);
+      form.setValue("ccv", currentDebitCard?.ccv);
+      form.setValue("bankName", currentDebitCard?.bankName);
+    }
+  }, [cardId, form]);
+
   const { mutate, isPending } = useMutation({
     mutationFn: (values: any) => {
-      return _axios.post("/user/card/debitcard/create", values);
+      return cardId
+        ? _axios.put(`/user/card/debitcard/edit?cardId=${cardId}`, values)
+        : _axios.post("/user/card/debitcard/create", values);
     },
     onSuccess(data: any) {
       toast.success(data?.data?.message);
@@ -65,7 +82,7 @@ const UploadDebitCard = () => {
           icon={"famicons:arrow-back-outline"}
           className='text-2xl md:text-3xl cursor-pointer  font-semibold'
         />
-        Upload Debit Card
+        {cardId ? "Edit Debit Card" : "Upload Debit Card"}
       </h2>
       <div className='min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-6rem)] flex items-center justify-center  font-roboto'>
         <div className='w-full max-w-md bg-white rounded-lg shadow-lg p-6 '>
@@ -151,7 +168,7 @@ const UploadDebitCard = () => {
                         className='border-gray-300 rounded-md'
                         placeholder='123'
                         maxLength={4}
-                        type='password'
+                        type='text'
                         {...field}
                         onChange={(e) => {
                           const value = e.target.value.replace(/\D/g, "");

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { _axios } from "@/lib/axios";
 import { toast } from "sonner";
@@ -25,9 +25,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { usePanCardStore } from "@/store/PanStore";
+import { useEffect } from "react";
 
 const UploadPanCard = () => {
   const navigate = useNavigate();
+  const { id: cardId } = useParams();
+
   const userId = localStorage.getItem("E_UserId");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,6 +45,27 @@ const UploadPanCard = () => {
     },
   });
 
+  const currentPanCard = usePanCardStore.getState().currentPanCard;
+
+  useEffect(() => {
+    if (cardId && currentPanCard) {
+      form.setValue("panNumber", currentPanCard?.panNumber);
+      form.setValue("fullName", currentPanCard?.fullName);
+      form.setValue("dateOfBirth", currentPanCard?.dateOfBirth);
+      form.setValue(
+        "type",
+        currentPanCard?.type as
+          | "Individual"
+          | "Company"
+          | "Trust"
+          | "HUF"
+          | "Other"
+      );
+      form.setValue("address", currentPanCard?.address);
+      form.setValue("fatherName", currentPanCard?.fatherName);
+    }
+  }, [cardId, form]);
+
   const formatPanNumber = (value: string) => {
     return value
       .toUpperCase()
@@ -50,10 +75,15 @@ const UploadPanCard = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (values: any) => {
-      return _axios.post("/user/card/pancard/create", {
-        ...values,
-        userId: userId,
-      });
+      return cardId
+        ? _axios.put(`/user/card/pancard/edit?cardId=${cardId}`, {
+            ...values,
+            userId: userId,
+          })
+        : _axios.post("/user/card/pancard/create", {
+            ...values,
+            userId: userId,
+          });
     },
     onSuccess(data: any) {
       toast.success(data?.data?.message);
@@ -82,7 +112,7 @@ const UploadPanCard = () => {
           icon={"famicons:arrow-back-outline"}
           className='text-2xl md:text-3xl cursor-pointer  font-semibold'
         />
-        Upload Pan Card
+        {cardId ? "Edit Pan Card" : "Upload Pan Card"}
       </h2>
       <div className='min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-6rem)] flex items-center justify-center  font-roboto'>
         <div className='w-full max-w-md bg-white rounded-lg shadow-lg p-6 '>

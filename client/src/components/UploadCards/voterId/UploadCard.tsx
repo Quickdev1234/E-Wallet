@@ -10,17 +10,20 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { _axios } from "@/lib/axios";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { formSchema } from "./voteridSchema";
-
 import { Textarea } from "@/components/ui/textarea";
+import { useVoterIdStore } from "@/store/VoterId";
+import { useEffect } from "react";
 
 const UploadVoterId = () => {
   const navigate = useNavigate();
+  const { id: cardId } = useParams();
+
   const userId = localStorage.getItem("E_UserId");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -33,6 +36,18 @@ const UploadVoterId = () => {
     },
   });
 
+  const currentVoterId = useVoterIdStore.getState().currentVoterId;
+
+  useEffect(() => {
+    if (cardId && currentVoterId) {
+      form.setValue("voterId", currentVoterId?.voterId);
+      form.setValue("fullName", currentVoterId?.fullName);
+      form.setValue("dateOfBirth", currentVoterId?.dateOfBirth);
+      form.setValue("address", currentVoterId?.address);
+      form.setValue("fatherName", currentVoterId?.fatherName);
+    }
+  }, [cardId, form]);
+
   const formatVoterId = (value: string) => {
     return value
       .toUpperCase()
@@ -42,10 +57,15 @@ const UploadVoterId = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: (values: any) => {
-      return _axios.post("/user/card/voterid/create", {
-        ...values,
-        userId: userId,
-      });
+      return cardId
+        ? _axios.put(`/user/card/voterid/edit?cardId=${cardId}`, {
+            ...values,
+            userId: userId,
+          })
+        : _axios.post("/user/card/voterid/create", {
+            ...values,
+            userId: userId,
+          });
     },
     onSuccess(data: any) {
       toast.success(data?.data?.message);
@@ -74,7 +94,7 @@ const UploadVoterId = () => {
           icon={"famicons:arrow-back-outline"}
           className='text-2xl md:text-3xl cursor-pointer  font-semibold'
         />
-        Upload Voter Id
+        {cardId ? "Edit Voter Id " : "Upload Voter Id "}
       </h2>
       <div className='min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-6rem)] flex items-center justify-center  font-roboto'>
         <div className='w-full max-w-md bg-white rounded-lg shadow-lg p-6 '>

@@ -152,6 +152,128 @@ const PanCardRouter = new Elysia({
         description: "Get all Pan cards of a user ",
       },
     }
+  )
+  .put(
+    "/edit",
+    async ({ set, body, query }) => {
+      try {
+        const { cardId } = query;
+        const {
+          userId,
+          panNumber,
+          fullName,
+          dateOfBirth,
+          type,
+          fatherName,
+          address,
+        } = body;
+
+        const existingCard = await PancardModel.findOne({
+          _id: cardId,
+          userId,
+        });
+
+        if (!existingCard) {
+          set.status = 400;
+          return {
+            message: "Card Not Found",
+          };
+        }
+        existingCard.panNumber = panNumber;
+        existingCard.fullName = fullName;
+        existingCard.dateOfBirth = new Date(dateOfBirth);
+        existingCard.type = type;
+        existingCard.fatherName = fatherName;
+        existingCard.address = address;
+
+        await existingCard.save();
+
+        set.status = 200;
+
+        return {
+          message: "Card Updated Successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      detail: {
+        summary: "Edit Pan Card",
+        description: "Edit a Pan card of a user",
+      },
+      query: t.Object({
+        cardId: t.String({
+          examples: ["64a3d84c2d3c1b2a08930b32"],
+        }),
+      }),
+      body: t.Object({
+        userId: t.String({
+          examples: ["123456789"],
+        }),
+        panNumber: t.String({
+          examples: ["ABCDE1234F"],
+        }),
+        fullName: t.String({
+          examples: ["John Doe"],
+        }),
+        dateOfBirth: t.String({
+          examples: ["1990-01-01"],
+        }),
+        type: t.String({
+          examples: ["Individual"],
+        }),
+        fatherName: t.String({
+          examples: ["John Doe"],
+        }),
+        address: t.String({
+          examples: ["123 Main Street, City, Country"],
+        }),
+      }),
+    }
+  )
+  .delete(
+    "/delete",
+    async ({ set, query }) => {
+      try {
+        const { cardId } = query;
+
+        const existingCard = await PancardModel.findOneAndDelete({
+          _id: cardId,
+        });
+
+        if (!existingCard) {
+          set.status = 400;
+          return {
+            message: "Card Not Found",
+          };
+        }
+
+        set.status = 200;
+
+        return {
+          message: "Card Deleted Successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      detail: {
+        summary: "Delete Pan Card",
+        description: "Delete a Pan card of a user",
+      },
+    }
   );
 
 export { PanCardRouter };

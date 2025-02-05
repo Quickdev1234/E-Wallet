@@ -142,6 +142,118 @@ const VoterIdRouter = new Elysia({
         description: "Get all Voter Id of a user ",
       },
     }
+  )
+  .put(
+    "/edit",
+    async ({ set, body, query }) => {
+      try {
+        const { cardId } = query;
+        const { userId, voterId, fullName, dateOfBirth, fatherName, address } =
+          body;
+
+        const existingCard = await VoterIdModel.findOne({
+          _id: cardId,
+          userId,
+        });
+
+        if (!existingCard) {
+          set.status = 400;
+          return {
+            message: "Card Not Found",
+          };
+        }
+        existingCard.voterId = voterId;
+        existingCard.fullName = fullName;
+        existingCard.dateOfBirth = new Date(dateOfBirth);
+        existingCard.fatherName = fatherName;
+        existingCard.address = address;
+
+        await existingCard.save();
+
+        set.status = 200;
+
+        return {
+          message: "Card Updated Successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      detail: {
+        summary: "Edit Voter Id",
+        description: "Edit a Voter Id  of a user",
+      },
+      query: t.Object({
+        cardId: t.String({
+          examples: ["64a3d84c2d3c1b2a08930b32"],
+        }),
+      }),
+      body: t.Object({
+        userId: t.String({
+          examples: ["123456789"],
+        }),
+        voterId: t.String({
+          examples: ["ABCDE1234F"],
+        }),
+        fullName: t.String({
+          examples: ["John Doe"],
+        }),
+        dateOfBirth: t.String({
+          examples: ["1990-01-01"],
+        }),
+        fatherName: t.String({
+          examples: ["John Doe"],
+        }),
+
+        address: t.String({
+          examples: ["123 Main Street, City, Country"],
+        }),
+      }),
+    }
+  )
+  .delete(
+    "/delete",
+    async ({ set, query }) => {
+      try {
+        const { cardId } = query;
+
+        const existingCard = await VoterIdModel.findOneAndDelete({
+          _id: cardId,
+        });
+
+        if (!existingCard) {
+          set.status = 400;
+          return {
+            message: "Card Not Found",
+          };
+        }
+
+        set.status = 200;
+
+        return {
+          message: "Card Deleted Successfully",
+          success: true,
+        };
+      } catch (error: any) {
+        console.log(error);
+        set.status = 500;
+        return {
+          message: error,
+        };
+      }
+    },
+    {
+      detail: {
+        summary: "Delete Voter Id",
+        description: "Delete a Voter Id of a user",
+      },
+    }
   );
 
 export { VoterIdRouter };

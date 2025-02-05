@@ -22,7 +22,7 @@ _axios.interceptors.response.use(
     if (error.response.status === 401) {
       localStorage.clear();
       toast.error("Session Expired! Login Again");
-      window.location.href = "/auth-login";
+      window.location.href = "/";
       window.alert("Session Expired! Login Again");
     }
     return Promise.reject(error);

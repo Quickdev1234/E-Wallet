@@ -1,6 +1,6 @@
 import { LoadingIndicator } from "@/components/Loading";
 import { _axios } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -14,6 +14,18 @@ import {
 } from "@/components/ui/pagination";
 import { Icon } from "@iconify/react";
 import { formatDate } from "@/lib/formaters";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
+import { useDrivingLicenseStore } from "@/store/DrivingLicense";
 const DrivinglicenseList = () => {
   const navigate = useNavigate();
 
@@ -22,14 +34,15 @@ const DrivinglicenseList = () => {
       navigate("/auth-login");
     }
   }, []);
-
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [cardId, setCardId] = useState("");
   const userId = localStorage.getItem("E_UserId");
   const [pagination, setPagination] = useState<any>({
     page: 1,
     limit: 10,
     total: 0,
   });
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["Aadhaar", pagination.page, pagination.limit],
     queryFn: async () => {
       return await _axios.get(
@@ -57,6 +70,19 @@ const DrivinglicenseList = () => {
     () => Math.ceil(pagination.total / pagination.limit),
     [pagination.total, pagination.limit]
   );
+  const { mutate: deleteMutate, isPending } = useMutation({
+    mutationFn: () => {
+      return _axios.delete(`/user/card/drivinglicense/delete?cardId=${cardId}`);
+    },
+    onSuccess: (data: any) => {
+      toast.success(data?.data?.message);
+      refetch();
+      setCardId("");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
   if (isError)
     return (
@@ -152,6 +178,34 @@ const DrivinglicenseList = () => {
                   Address: {card.address}
                 </p>
               </div>
+              <div className='mt-4 flex justify-end gap-5 border-t pt-3 text-gray-500'>
+                <Icon
+                  icon='mdi:pencil-outline'
+                  className='w-5 h-5 cursor-pointer hover:text-blue-600 transition-colors'
+                  onClick={() => {
+                    navigate(`/upload-drivinglicense-card/${card._id}`);
+                    useDrivingLicenseStore.setState({
+                      currentDrivingLicense: {
+                        cardId: card._id,
+                        licenseNumber: card.licenseNumber,
+                        fullName: card.fullName,
+                        dateOfBirth: card.dateOfBirth,
+                        issueDate: card.issueDate,
+                        expiryDate: card.expiryDate,
+                        address: card.address,
+                      },
+                    });
+                  }}
+                />
+                <Icon
+                  icon='mdi:trash-can-outline'
+                  className='w-5 h-5 cursor-pointer hover:text-red-600 transition-colors'
+                  onClick={() => {
+                    setAlertOpen(true);
+                    setCardId(card?._id);
+                  }}
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -237,6 +291,27 @@ const DrivinglicenseList = () => {
           </div>
         )}
       </div>
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className='font-inter'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              company account and remove company data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isPending}
+              onClick={() => {
+                deleteMutate();
+              }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 };

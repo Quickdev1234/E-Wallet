@@ -47,20 +47,23 @@ function MainApp() {
         <Route path='/change-password' element={<ChangePassword />} />
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/debit-list' element={<DebitList />} />
-        <Route path='/upload-debit-card' element={<UploadDebitCard />} />
+        <Route path='/upload-debit-card/:id?' element={<UploadDebitCard />} />
         <Route path='/credit-list' element={<CreditList />} />
-        <Route path='/upload-credit-card' element={<UploadCreditCard />} />
+        <Route path='/upload-credit-card/:id?' element={<UploadCreditCard />} />
         <Route path='/pan-list' element={<PanList />} />
-        <Route path='/upload-pan-card' element={<UploadPanCard />} />
+        <Route path='/upload-pan-card/:id?' element={<UploadPanCard />} />
         <Route path='/aadhaar-list' element={<AadhaarList />} />
-        <Route path='/upload-aadhaar-card' element={<UploadAadhaarCard />} />
+        <Route
+          path='/upload-aadhaar-card/:id?'
+          element={<UploadAadhaarCard />}
+        />
         <Route path='/drivinglicense-list' element={<DrivinglicenseList />} />
         <Route
-          path='/upload-drivinglicense-card'
+          path='/upload-drivinglicense-card/:id?'
           element={<UploadDrivingLicense />}
         />
         <Route path='/voterid-list' element={<VoterIdList />} />
-        <Route path='/upload-voterid' element={<UploadVoterId />} />
+        <Route path='/upload-voterid/:id?' element={<UploadVoterId />} />
       </Routes>
     </>
   );

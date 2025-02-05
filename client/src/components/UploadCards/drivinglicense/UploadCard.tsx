@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Icon } from "@iconify/react";
 import { _axios } from "@/lib/axios";
 import { toast } from "sonner";
@@ -19,9 +19,13 @@ import { formSchema } from "./drivinglicense";
 
 import { Textarea } from "@/components/ui/textarea";
 import { formatExpiryDate } from "@/lib/formaters";
+import { useDrivingLicenseStore } from "@/store/DrivingLicense";
+import { useEffect } from "react";
 
 const UploadDrivingLicense = () => {
   const navigate = useNavigate();
+  const { id: cardId } = useParams();
+
   const userId = localStorage.getItem("E_UserId");
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -35,12 +39,31 @@ const UploadDrivingLicense = () => {
     },
   });
 
+  const currentDrivingLicense =
+    useDrivingLicenseStore.getState().currentDrivingLicense;
+
+  useEffect(() => {
+    if (cardId && currentDrivingLicense) {
+      form.setValue("licenseNumber", currentDrivingLicense?.licenseNumber);
+      form.setValue("fullName", currentDrivingLicense?.fullName);
+      form.setValue("dateOfBirth", currentDrivingLicense?.dateOfBirth);
+      form.setValue("issueDate", currentDrivingLicense?.issueDate);
+      form.setValue("address", currentDrivingLicense?.address);
+      form.setValue("expiryDate", currentDrivingLicense?.expiryDate);
+    }
+  }, [cardId, form]);
+
   const { mutate, isPending } = useMutation({
     mutationFn: (values: any) => {
-      return _axios.post("/user/card/drivinglicense/create", {
-        ...values,
-        userId: userId,
-      });
+      return cardId
+        ? _axios.put(`/user/card/drivinglicense/edit?cardId=${cardId}`, {
+            ...values,
+            userId: userId,
+          })
+        : _axios.post("/user/card/drivinglicense/create", {
+            ...values,
+            userId: userId,
+          });
     },
     onSuccess(data: any) {
       toast.success(data?.data?.message);
@@ -69,7 +92,7 @@ const UploadDrivingLicense = () => {
           icon={"famicons:arrow-back-outline"}
           className='text-2xl md:text-3xl cursor-pointer  font-semibold'
         />
-        Upload Driving License
+        {cardId ? "Edit Driving License" : "Upload Driving License"}
       </h2>
       <div className='min-h-[calc(100vh-10rem)] sm:min-h-[calc(100vh-6rem)] flex items-center justify-center  font-roboto'>
         <div className='w-full max-w-md bg-white rounded-lg shadow-lg p-6 '>

@@ -1,6 +1,6 @@
 import { LoadingIndicator } from "@/components/Loading";
 import { _axios } from "@/lib/axios";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -13,6 +13,19 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Icon } from "@iconify/react";
+import { useDebitCardStore } from "@/store/DebitStore";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 const DebitList = () => {
   const navigate = useNavigate();
 
@@ -21,14 +34,15 @@ const DebitList = () => {
       navigate("/auth-login");
     }
   }, []);
-
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [cardId, setCardId] = useState("");
   const userId = localStorage.getItem("E_UserId");
   const [pagination, setPagination] = useState<any>({
     page: 1,
     limit: 10,
     total: 0,
   });
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["Debit", pagination.page, pagination.limit],
     queryFn: async () => {
       return await _axios.get(
@@ -56,6 +70,20 @@ const DebitList = () => {
     () => Math.ceil(pagination.total / pagination.limit),
     [pagination.total, pagination.limit]
   );
+
+  const { mutate: deleteMutate, isPending } = useMutation({
+    mutationFn: () => {
+      return _axios.delete(`/user/card/debitcard/delete?cardId=${cardId}`);
+    },
+    onSuccess: (data: any) => {
+      toast.success(data?.data?.message);
+      refetch();
+      setCardId("");
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
   if (isError)
     return (
@@ -100,51 +128,74 @@ const DebitList = () => {
           {data?.data?.Cards?.map((card: any) => (
             <div
               key={card._id}
-              className='relative overflow-hidden p-6 bg-white shadow-lg rounded-lg border border-gray-200 hover:shadow-xl hover:scale-105 transition-transform duration-300'>
+              className='relative overflow-hidden p-6 bg-white shadow-md rounded-lg border border-gray-200 hover:shadow-xl hover:scale-105 transition-transform duration-300'>
               <div className='absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-green-500'></div>
+
               <h3 className='text-lg font-semibold text-gray-800 mb-2'>
                 {card.cardHolderName}
               </h3>
-              <div className='space-y-2'>
-                <p className='text-sm text-gray-600 flex items-center'>
-                  <span className='font-medium mr-2'>
-                    <Icon
-                      icon='mdi:credit-card-outline'
-                      className='text-blue-500'
-                    />
-                  </span>
-                  Card Number: {card.cardNumber}
+
+              <div className='space-y-2 text-sm text-gray-600'>
+                <p className='flex items-center'>
+                  <Icon
+                    icon='mdi:credit-card-outline'
+                    className='text-blue-500 mr-2'
+                  />
+                  {card.cardNumber}
                 </p>
-                <p className='text-sm text-gray-600 flex items-center'>
-                  <span className='font-medium mr-2'>
-                    <Icon icon='mdi:calendar' className='text-green-500' />
-                  </span>
-                  Expiry Date: {card.expiryDate}
+                <p className='flex items-center'>
+                  <Icon icon='mdi:calendar' className='text-green-500 mr-2' />
+                  {card.expiryDate}
                 </p>
-                <p className='text-sm text-gray-600 flex items-center'>
-                  <span className='font-medium mr-2'>
-                    <Icon
-                      icon='mdi:card-account-details-outline'
-                      className='text-indigo-500'
-                    />
-                  </span>
-                  Card Type: {card.cardType}
+                <p className='flex items-center'>
+                  <Icon
+                    icon='mdi:card-account-details-outline'
+                    className='text-indigo-500 mr-2'
+                  />
+                  {card.cardType}
                 </p>
-                <p className='text-sm text-gray-600 flex items-center'>
-                  <span className='font-medium mr-2'>
-                    <Icon
-                      icon='mdi:shield-check-outline'
-                      className='text-red-500'
-                    />
-                  </span>
-                  CCV: {card.ccv}
+                <p className='flex items-center'>
+                  <Icon
+                    icon='mdi:shield-check-outline'
+                    className='text-red-500 mr-2'
+                  />
+                  {card.ccv}
                 </p>
-                <p className='text-sm text-gray-600 flex items-center'>
-                  <span className='font-medium mr-2'>
-                    <Icon icon='mdi:bank-outline' className='text-yellow-500' />
-                  </span>
-                  Bank Name: {card.bankName}
+                <p className='flex items-center'>
+                  <Icon
+                    icon='mdi:bank-outline'
+                    className='text-yellow-500 mr-2'
+                  />
+                  {card.bankName}
                 </p>
+              </div>
+
+              <div className='mt-4 flex justify-end gap-5 border-t pt-3 text-gray-500'>
+                <Icon
+                  icon='mdi:pencil-outline'
+                  className='w-5 h-5 cursor-pointer hover:text-blue-600 transition-colors'
+                  onClick={() => {
+                    navigate(`/upload-debit-card/${card._id}`);
+                    useDebitCardStore.setState({
+                      currentDebitCard: {
+                        cardId: card._id,
+                        cardNumber: card.cardNumber,
+                        cardHolderName: card.cardHolderName,
+                        expiryDate: card.expiryDate,
+                        ccv: card.ccv,
+                        bankName: card.bankName,
+                      },
+                    });
+                  }}
+                />
+                <Icon
+                  icon='mdi:trash-can-outline'
+                  className='w-5 h-5 cursor-pointer hover:text-red-600 transition-colors'
+                  onClick={() => {
+                    setAlertOpen(true);
+                    setCardId(card?._id);
+                  }}
+                />
               </div>
             </div>
           ))}
@@ -231,6 +282,27 @@ const DebitList = () => {
           </div>
         )}
       </div>
+      <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
+        <AlertDialogContent className='font-inter'>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your
+              company account and remove company data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isPending}
+              onClick={() => {
+                deleteMutate();
+              }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </main>
   );
 };
