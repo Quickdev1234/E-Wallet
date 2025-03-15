@@ -40,10 +40,7 @@ app.onError(({ error }) => {
 });
 
 app.use(BaseRouter);
-// http://192.168.84.171:5173/
-// const HOST = process.env.HOST || "localhost";
-// const PORT = process.env.PORT || 4000;
-const HOST = "192.168.84.171";
+const HOST = process.env.HOST || "localhost";
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, () => {
