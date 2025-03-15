@@ -50,7 +50,7 @@ curl -fsSL https://bun.sh/install | bash
 
 #### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/e-wallet.git
+git clone https://github.com/Quickdev1234/E-Wallet.git
 cd e-wallet
 ```
 
